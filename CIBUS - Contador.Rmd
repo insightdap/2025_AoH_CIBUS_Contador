@@ -1,5 +1,6 @@
 ---
 title: "CIBUS - Contador"
+author: "[2025]"
 output: 
   flexdashboard::flex_dashboard:
     logo: logo_insight.png
