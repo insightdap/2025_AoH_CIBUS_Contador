@@ -49,7 +49,7 @@ try(gs4_auth(
 # rsconnect::writeManifest()
 
 #Importación   --------------------------------------------------------
-data <- read_sheet("1qtyC5cpkb1O8TCjYQ-_IaIHbHR6djy84aJoZd_Vgf4o")
+data <- read_sheet("1Fz9gIQrvjMQCt_ybzJPQgXAP3rD8_BX_rjTUzanVneE")
 principal <- read_sheet("1sXOTFPhjP9mG0NEpo__csRs1-Xl-oBHjctORKCA_Uy4")
 
 principal <- principal %>% 
@@ -62,7 +62,7 @@ data <- data %>%
 
 
 principal <- principal %>% 
-  left_join(select(data,ref,eval,fecha,`Submission ID`, matches("68"):matches("73")),by=join_by(user_pass==ref))
+  left_join(select(data,ref,eval,fecha,`Submission ID`, matches("1."):matches("7.")),by=join_by(user_pass==ref))
 
 principal <- principal %>% 
   mutate(estado = case_when(!is.na(`Submission ID`) ~ "Completado",
@@ -71,10 +71,10 @@ principal <- principal %>%
 #Renombrando demográficos
 # Agregar más demos si es necesario para el contador
 principal <- principal %>% 
-  rename(genero = matches("68"),  # buscando por número de pregunta
-         generacion = matches("69"),
-         jerarquia = matches("70"),
-         tiempo_laboral = matches("71"),) 
+  rename(genero = matches("1."),  # buscando por número de pregunta
+         generacion = matches("2."),
+         jerarquia = matches("3."),
+         tiempo_laboral = matches("4."),) 
 
 
 respuestas_diario <- data %>% 
