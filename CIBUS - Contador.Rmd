@@ -52,6 +52,8 @@ try(gs4_auth(
 data <- read_sheet("1Fz9gIQrvjMQCt_ybzJPQgXAP3rD8_BX_rjTUzanVneE")
 principal <- read_sheet("1sXOTFPhjP9mG0NEpo__csRs1-Xl-oBHjctORKCA_Uy4")
 
+ultima_actualizacion <- Sys.time()
+
 principal <- principal %>% 
   mutate(user_login = as.character(user_login))
 
@@ -484,5 +486,29 @@ layout_column_wrap(
 ```
 
 
+Row {data-height=12}
+-----------------------------------------------------------------------
+
+<div style="display:flex; justify-content:space-between; align-items:center;
+            width:100%; margin-top:4px; margin-bottom:4px;">
+
+  <!-- Izquierda -->
+  <p style="background:transparent; padding:4px; border-radius:6px;
+            font-size:10px; color:#003366; margin:0;">
+    Powered by 
+    <a href="https://insightdap.com/" target="_blank"
+       style="color:#003366; font-weight:bold; text-decoration:none;">
+      Insight Data Analytics Partners
+    </a>
+  </p>
+
+  <!-- Derecha -->
+  <p style="background:transparent; padding:4px; border-radius:6px;
+            font-size:10px; color:#003366; margin:0; text-align:right;">
+    <b>Última actualización:</b>
+   `r format(ultima_actualizacion, "%d-%m-%Y %H:%M",tz = "America/El_Salvador")`
+  </p>
+
+</div>
 
 
