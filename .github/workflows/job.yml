@@ -2,8 +2,9 @@ name: Update README every 1 hour
 
 on:
   schedule:
-     - cron: '0 13-24 * * *'  # Minuto 0 cada 2 horas en dicho horario, horario en utc, +6:00
-#    - cron: '0 * * * *'     # Minuto 0, todos los dias
+     - cron: '0 13-23 * * *'  # Minuto 0 cada 2 horas en dicho horario, horario en utc, +6:00
+     - cron: '0 0 * * *'  # Minuto 0 siguiente dia, 6 pm local
+#    - cron: '0 * * * *'     # Minuto 0, todos los dias, cada hora.
   workflow_dispatch:
 
 permissions:
