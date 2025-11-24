@@ -3,7 +3,7 @@ title: "CIBUS - Contador"
 author: "[2025]"
 output: 
   flexdashboard::flex_dashboard:
-    logo: logo_insight.png
+    logo: cibus-logo.png
     orientation: rows
     vertical_layout: scroll
     theme:
@@ -11,6 +11,8 @@ output:
       navbar-bg: "#000000"  #Color barra de navegación
 
 ---
+
+
 
 ```{r setup, include=FALSE}
 library(flexdashboard)
@@ -46,15 +48,12 @@ try(gs4_auth(
   )
 ))
 
-# rsconnect::writeManifest()
-
 #Importación   --------------------------------------------------------
 data <- read_sheet("1Fz9gIQrvjMQCt_ybzJPQgXAP3rD8_BX_rjTUzanVneE")
 principal <- read_sheet("1sXOTFPhjP9mG0NEpo__csRs1-Xl-oBHjctORKCA_Uy4")
 
 principal <- principal %>% 
-  mutate(user_login = as.character(user_login),
-         user_pass = as.character(user_pass))
+  mutate(user_login = as.character(user_login))
 
 data <- data %>% 
   mutate(fecha = `Submitted at`- hours(6)) %>% 
@@ -77,7 +76,7 @@ principal <- principal %>%
          tiempo_laboral = matches("4."),) 
 
 
-respuestas_diario <- data %>% 
+respuestas_diario <- principal %>% 
   mutate(dias = floor_date(fecha, "day")) %>% 
   group_by(dias) %>% 
   count() 
@@ -375,32 +374,90 @@ layout_column_wrap(
 ```
 
 
-Row {data-height=450}
+Row {data-height=350}
 -----------------------------------------------------------------------
 
 
-```{r Avance por lideres}
+```{r Avance por Empresa}
 
-contador_lider <- principal %>% 
-  filter(!is.na(lider1)) %>% # Evitar personas sin lider asignado
-  group_by(lider1,estado) %>% 
-  summarise(respuestas = n(),
-            prop = round(respuestas/sum(respuestas)*100,0)) %>% 
+contador_empresa <- principal %>% 
+  filter(!is.na(company)) %>% # Evitar vacios
+  group_by(company,estado) %>% 
+  summarise(respuestas = n()) %>% 
+  mutate(prop = round(respuestas/sum(respuestas)*100,0)) %>%
   pivot_wider(names_from = estado, values_from = c(respuestas,prop), values_fill = 0) %>% 
   mutate(total_respuestas = rowSums(across(starts_with("respuestas"))),
          total_prop = rowSums(across(starts_with("prop"))))
 
 layout_column_wrap(
   width = 1,
-  height = 440,
+  height = 340,
   card(
   full_screen = TRUE,
   card_body(
-   contador_lider %>% 
-    hchart("bar", hcaes(x = lider1, y = total_prop, z = total_respuestas), name = "Poblacion", showInLegend = TRUE,
+   contador_empresa %>% 
+    hchart("bar", hcaes(x = company, y = total_prop, z = total_respuestas), name = "Población", showInLegend = TRUE,
            borderRadius = 10,
            dataLabels=list(enabled=TRUE, format="{point.y:.0f}% ({point.z:.0f})")) %>%
-    hc_add_series(type = "bar",data = contador_lider,hcaes(x = lider1, y = prop_Completado, z = respuestas_Completado), 
+    hc_add_series(type = "bar",data = contador_empresa,hcaes(x = company, y = prop_Completado, z = respuestas_Completado),
+                  name = "Completado", color = "#29BEB4",showInLegend = TRUE,
+                  borderRadius = 10,
+                  dataLabels=list(enabled=TRUE, format="<span style='color:{series.color}'>{point.y:.0f}% ({point.z:.0f})</span>")) %>%
+    hc_title(text = "Avance de Respuestas por Empresa") %>%
+    # hc_subtitle(text = "Frecuencias por Nivel de Respuesta") %>%
+    hc_xAxis(title = list(text = "")) %>% 
+    hc_yAxis(title = list(text = "Porcentaje"),ceiling = 100, labels = list(format = "{text}%")) %>%
+    hc_colors(c("#EBEBEB"))%>%
+    hc_plotOptions(bar=list(
+      grouping = FALSE, 
+      # pointPadding = 0,      # SUPERPOSICIÓN TOTAL
+      pointPlacement = 0    # MISMA POSICIÓN EXACTA
+      # groupPadding = 0,      # MISMO GRUPO (sin separación)
+    )) %>%
+    hc_tooltip(pointFormat = "<span style='color:{point.color}'>●</span> {series.name}: <b>{point.y:.0f} %
+               ({point.z:.0f})") %>% 
+    hc_scrollbar(enabled = TRUE) %>% 
+    hc_add_theme(tema_general_hc) %>% 
+    hc_exporting(enabled = TRUE)
+  ))
+)
+
+
+```
+
+
+Row {data-height=650}
+-----------------------------------------------------------------------
+
+
+```{r Avance por lideres}
+
+contador_lider <- principal %>% 
+  filter(!is.na(lider1)) %>% # Evitar vacios
+  group_by(company,lider1,estado) %>% 
+  summarise(respuestas = n()) %>% 
+  mutate(prop = round(respuestas/sum(respuestas)*100,0)) %>%
+  pivot_wider(names_from = estado, values_from = c(respuestas,prop), values_fill = 0) %>% 
+  mutate(total_respuestas = rowSums(across(starts_with("respuestas"))),
+         total_prop = rowSums(across(starts_with("prop"))),
+         titulo = paste(company," - ",lider1, sep = "")) 
+
+layout_column_wrap(
+  width = 1,
+  height = 640,
+  card(
+  full_screen = TRUE,
+  card_header(
+    tooltip(
+      bs_icon("info-circle"),
+      "Para visualizar los líderes completamente, hacer zoom en el gráfico seleccionando con el cursor un espacio dentro de las barras y utilizar la barra de desplazamiento lateral."
+    )),
+  card_body(
+   contador_lider %>% 
+    hchart("bar", hcaes(x = titulo, y = total_prop, z = total_respuestas), name = "Poblacion", showInLegend = TRUE,
+           borderRadius = 10,
+           dataLabels=list(enabled=TRUE, format="{point.y:.0f}% ({point.z:.0f})")) %>%
+    hc_add_series(type = "bar",data = contador_lider,hcaes(x = titulo, y = prop_Completado, z = respuestas_Completado), 
                   name = "Completado", color = "#29BEB4",showInLegend = TRUE,
                   borderRadius = 10,
                   dataLabels=list(enabled=TRUE, format="<span style='color:{series.color}'>{point.y:.0f}% ({point.z:.0f})</span>")) %>%
