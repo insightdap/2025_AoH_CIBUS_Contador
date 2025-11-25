@@ -88,7 +88,7 @@ respuestas_diario <- principal %>%
 tema_general_hc <- hc_theme_merge(
   hc_theme_elementary(),
   hc_theme(
-    colors = c("#14213D","#E5E5E5","#FCA311","#298DB4","#29BEB4"),
+    colors = c("#14213D","#29BEB4","#FCA311","#298DB4","#C3EC95"),
     chart = list(
       backgroundColor = "#FFF",
       style = list(
